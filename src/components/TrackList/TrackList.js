@@ -5,6 +5,7 @@ import { Track } from "../Track/Track";
 export class TrackList extends React.Component {
   render() {
     const { tracks, onAdd, onRemove, isRemoval } = this.props;
+
     return (
       <div className="TrackList">
         {tracks.map((track, index) => (
