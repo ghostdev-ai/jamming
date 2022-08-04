@@ -13,6 +13,7 @@ class Spotify {
   /**
    * Checks if the user’s access token is already set. If it is, return the
    * value saved to access token.
+   *
    * @returns {accessToken} The API token of the client.
    */
   getAccessToken() {
@@ -66,16 +67,67 @@ class Spotify {
       .then((response) => response.json())
       .then(({ tracks }) => {
         const { items } = tracks;
-        items.forEach(item => tracksList.push({
+        items.forEach((item) =>
+          tracksList.push({
             id: item.id,
             name: item.name,
             artist: item.artists[0].name,
             album: item.album.name,
-            uri: item.uri
-        }))
+            uri: item.uri,
+          })
+        );
       });
 
     return tracksList;
+  }
+
+  /**
+   * Writes the user's custom playlist in Jammming to their Spotify account.
+   *
+   * @param { string } playlistName
+   * @param { string[] } trackURIs
+   */
+  async savePlaylist(playlistName, trackURIs) {
+    if (!playlistName && !trackURIs) return;
+
+    const accessToken = this.getAccessToken();
+    const headers = {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    };
+    let userID;
+
+    await fetch(`https://api.spotify.com/v1/me`, {
+      method: "GET",
+      headers,
+    })
+      .then((response) => response.json())
+      .then(({ id }) => (userID = id));
+
+    let playlistID;
+
+    await fetch(`https://api.spotify.com/v1/users/${userID}/playlists`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ name: playlistName }),
+    })
+      .then((response) => response.json())
+      .then(({ id }) => (playlistID = id));
+
+    
+    console.log(userID);
+    console.log(playlistID);
+    console.log(trackURIs);
+    
+    await fetch(`https://api.spotify.com/v1/users/${userID}/playlists/${playlistID}/tracks`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ uris: trackURIs }),
+    })
+      .then((response) => response.json())
+      .then(data => console.log(data));
+      
+    
   }
 }
 

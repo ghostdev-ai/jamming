@@ -18,14 +18,7 @@ class App extends React.Component {
     this.state = {
       searchResults: [],
       playlistName: "New Playlist",
-      playlistTracks: [
-        {
-          id: "0",
-          name: "Tiny Dancer",
-          artist: "Elton John",
-          album: "Madman Across The Water",
-        },
-      ],
+      playlistTracks: [],
     };
   }
 
@@ -51,8 +44,12 @@ class App extends React.Component {
     this.setState({ playlistName: name });
   }
 
-  savePlaylist() {
-    const trackURIs = [];
+  async savePlaylist() {
+    const { playlistName, playlistTracks } = this.state;
+    const trackURIs = playlistTracks.map(track => track.uri);
+
+    await Spotify.savePlaylist(playlistName, trackURIs);
+  
   }
 
   async search(term) {
